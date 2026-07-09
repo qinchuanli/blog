@@ -1,0 +1,46 @@
+---
+import { type CollectionEntry, getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: post,
+  }));
+}
+
+type Props = CollectionEntry<'blog'>;
+
+const post = Astro.props;
+const { Content } = await render(post);
+---
+
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <article>
+    <div style="margin-bottom: 2rem; text-align: center;">
+      <h1 style="font-size: 2.25rem; margin-bottom: 0.75rem;">{post.data.title}</h1>
+      <div style="color: var(--color-muted); font-size: 0.95rem;">
+        <time datetime={post.data.pubDate.toISOString()}>
+          {post.data.pubDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+        </time>
+        {post.data.tags && (
+          <span style="margin-left: 1rem;">
+            {post.data.tags.map((tag) => (
+              <span class="tag">{tag}</span>
+            ))}
+          </span>
+        )}
+      </div>
+    </div>
+    <div class="card" style="padding: 2rem;">
+      <Content />
+    </div>
+    <div style="margin-top: 2rem; text-align: center;">
+      <a href="/blog" style="color: var(--color-muted); font-size: 0.95rem;">
+        ← 返回文章列表
+      </a>
+    </div>
+  </article>
+</BaseLayout>

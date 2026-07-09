@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<BaseLayout title="文章列表" description="所有博客文章">
+  <h1>📖 文章列表</h1>
+  <p style="color: var(--color-muted); margin-bottom: 2rem;">共 {posts.length} 篇文章</p>
+
+  {posts.length > 0 ? (
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+      {posts.map((post) => (
+        <a href={`/blog/${post.id}/`} class="card" style="text-decoration: none; color: inherit; display: block;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="margin: 0; font-size: 1.25rem; color: var(--color-primary);">{post.data.title}</h3>
+            <time style="font-size: 0.875rem; color: var(--color-muted); white-space: nowrap;" datetime={post.data.pubDate.toISOString()}>
+              {post.data.pubDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </time>
+          </div>
+          <p style="margin: 0.5rem 0 0; color: var(--color-muted); font-size: 0.95rem;">{post.data.description}</p>
+          {post.data.tags && (
+            <div style="margin-top: 0.75rem;">
+              {post.data.tags.map((tag) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          )}
+        </a>
+      ))}
+    </div>
+  ) : (
+    <p style="text-align: center; color: var(--color-muted); padding: 3rem 0;">暂无文章</p>
+  )}
+</BaseLayout>
